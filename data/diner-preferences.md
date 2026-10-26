@@ -1,32 +1,115 @@
-# Primary Diner — Harvest Meal Preferences
+# Household — Harvest Meal Preferences
 
 > Referenced by: `data/data_context.md`, `data/MEAL_PLAN_PRODUCTION_WORKFLOW.md`
 
-Demo preferences for the person who eats and cooks the weekly meals. The companion junk list is managed separately in `data/companion-preferences.md`.
+The source of truth for what this family eats. Where `data/data_context.md` (product reference) disagrees with this file, this file wins. The junk list is managed separately in `data/companion-preferences.md`.
+
+Health notes below are household guidance, not medical advice; Dad's doctor has the final say.
+
+---
+
+## Who's Eating
+
+A family of 4. **Plan every meal for 4 servings** unless the meal is marked for one person.
+
+| Who | Needs | Likes |
+|---|---|---|
+| **Dad**, 84 | **Allergic to shellfish.** Diabetes and gout (see Health Guidance) | Indian and Asian flavors |
+| **Daughter**, 11 | Not spicy. Doesn't like bell peppers. Not a fan of crumbled feta | Oysters, shrimp, clam chowder, turkey burgers, spaghetti, steak, Asian flavors |
+| **The couple** | Want **slightly lower carb** for themselves | Flavorful food with real spice |
 
 ---
 
 ## Week Shape
 
-4 meals per week: **1 breakfast, 1 lunch, 2 dinners.**
+The number of breakfasts, lunches and dinners per week is set in the app (`EXPECTED_MEAL_COUNTS` in `lib/constants.ts`) and stated in each planning request.
 No day scheduling. No daily calorie targets. Meals are a flat list.
+
+---
+
+## Shellfish (Dad's allergy)
+
+Shellfish means shrimp, prawns, crab, lobster, crawfish, langoustine, clams, oysters, mussels, scallops, squid and octopus, plus anything made from them (clam chowder, seafood blends, imitation crab, shrimp-based sauces).
+
+Shellfish is welcome (the daughter loves it) as long as **Dad's serving never contains it**:
+
+- **In a shared meal, shellfish is an add-on.** List it as its own ingredient, cooked separately and added to individual plates, for example "shrimp, sautéed separately, for 3 of the 4 bowls". Never put it in a shared sauce, broth, base or batter.
+- **A meal built around shellfish** (clam chowder, oysters, a shrimp bowl) needs a separate protein for Dad, listed as its own ingredient, or its name ends with **"(not for Dad)"** when it's a breakfast or lunch he'll skip.
+- Keep shellfish prep separate (its own pan, utensils and board) to avoid cross-contact.
+- **Junk list:** shellfish snacks only when labeled "(not for Dad)".
+
+---
+
+## Health Guidance (Dad)
+
+**Diabetes**
+- Keep added sugar low. Sweet sauces and glazes (Soyaki, sweet chili, mango chutney, teriyaki) at most twice a week, and never as the only flavor.
+- Pair every carb with protein and fiber; favor whole grains, legumes and vegetables over refined starch.
+
+**Gout**
+- Go easy on high-purine foods: organ meats, anchovies, sardines, mussels and scallops shouldn't appear.
+- Red meat (steak, tri-tip, ground beef, lamb) in **at most 2 dinners a week**.
+- Poultry, eggs, dairy, tofu, legumes and most fish are good everyday proteins.
+
+---
+
+## Spice: Mild in the Pot, Heat at the Table
+
+The daughter eats everything not spicy; the couple wants heat.
+
+- **Cook every shared meal mild.** No spicy sauces, chili or hot sausage in the base dish.
+- In **at least 3 dinners a week**, add a heat-at-the-table component as its own ingredient, such as Trader Joe's Chili Onion Crunch, Trader Joe's Green Dragon Hot Sauce, Trader Joe's Zhoug Sauce, or crushed red pepper. Name it in `ingredients` with the category `engine`.
+
+---
+
+## Lower Carb for the Couple
+
+- On shared meals, **keep the base separable**: rice, pasta, bread or naan served on the side so the couple can halve or skip it while Dad and the daughter have a full portion.
+- In about half the dinners, include a lower-carb swap in `ingredients` (cauliflower rice, lettuce cups, extra roasted vegetables, a side salad).
+- Dad's carbs still follow the diabetes guidance above.
+
+---
+
+## Family Favorites
+
+Proven hits. **Bring back 1–2 of these (or close variations) each week.** The app rejects a meal that was on the menu in the last 3 weeks, so rotate them.
+
+- Gymkhana Goan sauce with fried tofu
+- Flatbread pizza on a garlic base (one pesto, one Gymkhana butter sauce)
+- Lasagna soup
+- 5-cheese tortellini soup
+- Viral Trader Joe's dumpling bake
+- Trader Joe's Santa Maria tri-tip roast
+
+**Safe bets**
+- **Trader Joe's packaged Indian dishes are always a hit**; plan at least one Indian night a week built around them.
+- **Soup nights:** 1–2 dinners a week can be soup with garlic bread (chicken tortilla soup, tomato basil soup, lasagna soup, 5-cheese tortellini soup, or a new one).
+- Daughter's favorites for shared dinners: turkey burgers, spaghetti, steak, Asian-style noodles and rice dishes.
+
+---
+
+## Cheese, Salads and New Things
+
+- **Bell peppers:** fine for the rest of the family, but keep them **separable** for the daughter: on the side, roasted on their own tray, or cut large enough to pick out. Never blended into a sauce or finely diced into a shared base.
+- **Feta and goat cheese:** the family likes crumbled feta and goat cheese crumbles. Serve them **on the side** (listed as their own ingredient) so the daughter can skip them.
+- **Salads:** the family is getting tired of salad kits. Prefer **homemade salads** (chopped, grain, slaw, or composed salads built from separate ingredients); at most 1 salad kit a week.
+- **Cottage cheese:** willing to try it. Use it in **1 meal a week** in an approachable way (a breakfast bowl, whipped into eggs, or blended into a pasta sauce).
 
 ---
 
 ## Calorie Targets
 
-**All meals: 450–550 kcal.**
-Apply loosely — flavor and satiety matter more than hitting exact numbers.
+Macros are for **one adult serving** with the full base. Aim for roughly **450–550 kcal**, loosely; flavor and satiety matter more than exact numbers.
 
 ---
 
 ## Cooking Parameters
 
-- **Time ceiling: 20–30 minutes**, using up to two pans (breakfasts and dinners).
-- Techniques in scope: sear, sauté, boil, roast (if it fits the time window), assemble.
+- **Weeknight time ceiling: 20–30 minutes**, using up to two pans (breakfasts and dinners).
+- **Up to 2 dinners a week can run longer**, such as a roast (the tri-tip) or a simmered soup.
+- Techniques in scope: sear, sauté, boil, roast, simmer, assemble.
 - **Lunch is the exception:** assemble only — no cooking (see Lunch Style).
-- No project meals. Consistent weeknight effort across the week.
-- Frozen grains and vegetables are freely usable. Fully frozen entrées: **≤1–2 per week maximum.**
+- Frozen grains and vegetables are freely usable. Fully frozen or packaged entrées, including the Trader Joe's Indian dishes: **at most 4 per week, and at most 3 of them dinners.**
 
 ---
 
@@ -36,15 +119,14 @@ Rotate across these proteins. Aim for **≥3 different protein types per week.**
 
 | Protein | Notes |
 |---|---|
-| Chicken thighs | Preferred over breast for flavor and forgiveness |
-| Chicken breast | Fine, but use thighs when either would work |
-| Ground beef or turkey | Good for bowls, stir-fry bases, tacos |
-| Shrimp | Keep in rotation as a regular option |
-| Fish (salmon, white fish) | Salmon or white fish (cod, tilapia, halibut); rotate types |
+| Chicken thighs or breast | Everyday staple; thighs when either works |
+| Ground turkey | Turkey burgers are a daughter favorite |
+| Beef (steak, tri-tip, ground) | Counts toward the 2 red-meat dinners a week |
+| Fish (salmon, white fish) | Rotate types |
 | Eggs | Breakfast and lunch staple |
-| Tofu / tempeh | For vegetarian meals; marinate or crisp properly |
-| Meat substitutes | Beyond, Quorn, etc. — acceptable for vegetarian variety |
+| Tofu / paneer | Fried tofu is a family hit; paneer suits Indian nights |
 | Legumes | Lentils, chickpeas, black beans — first-class protein, not a side |
+| Shellfish | As a separately cooked add-on, or with a separate protein for Dad, per the Shellfish section |
 
 **Hard no:** Pineapple (in any meal, any context).
 
@@ -52,31 +134,33 @@ Rotate across these proteins. Aim for **≥3 different protein types per week.**
 
 ## Vegetarian Meals
 
-Vegetarian meals are welcome when they fit the week. When included, make them satisfying and protein-complete. Legumes, tofu, tempeh, eggs, and meat substitutes all qualify.
+Vegetarian meals are welcome when they fit the week. When included, make them satisfying and protein-complete. Legumes, tofu, paneer, eggs, and cottage cheese all qualify.
 
 ---
 
 ## Cuisine Profile
 
-Bold, globally inspired flavors. Rotate across these cuisines — don't repeat the same profile more than once per week.
+Flavorful, globally inspired, family-friendly. Indian and Asian flavors are favorites. Use at least 5 of these each week. Any one cuisine goes in at most 3 meals, and in at most 2 of the dinners.
 
-- Thai / Southeast Asian
 - Indian
-- Mediterranean / Middle Eastern
-- Mexican / Tex-Mex
 - Chinese / Taiwanese
-- American comfort with a twist
+- Thai / Southeast Asian
+- Japanese / Korean
+- Italian / Italian-American (pasta, soups, flatbread pizza)
+- Mexican / Tex-Mex
+- Mediterranean / Middle Eastern
+- American comfort (burgers, roasts, chowders)
 
-**Flavor targets:** umami, heat, fresh herbs. Avoid bland proteins and boring builds.
+**Flavor targets:** umami and fresh herbs in the pot; heat at the table (see Spice). Avoid bland proteins and boring builds.
 
 ---
 
 ## Breakfast Style
 
-Mix styles each week — **don't serve two oat-heavy or two sweet breakfasts in the same week.**
+Mix styles each week: **at least 2 savory breakfasts, at most 2 sweet, and at most 2 oat-heavy.**
 
 - **Savory:** eggs, grain bowls, protein-forward builds
-- **Sweet but substantial:** oats done interestingly, yogurt builds with real protein and fiber
+- **Sweet but substantial:** oats done interestingly, yogurt or cottage cheese builds with real protein and fiber
 
 ---
 
@@ -86,7 +170,7 @@ Lunch should be **assemble only — no cooking.**
 
 - No stovetop, oven, sautéing, boiling, roasting, or microwaving for the lunch build.
 - OK: open, drain, rinse, chop, and combine ready-to-eat components.
-- Still hit 450–550 kcal with adequate protein and fiber.
+- Homemade salads fit here; still hit the calorie range with adequate protein and fiber.
 
 ---
 
@@ -99,24 +183,11 @@ Fiber is a **first-class nutrient** — shown on every meal card. Preferred sour
 ## Macros
 
 ```
-cal: 450–550
+cal: 450–550 per adult serving
 protein: aim high
 fiber: shown on every card; higher is better
-carbs/fat: no specific targets
+carbs: keep the base separable so the couple can go lower carb
 ```
-
----
-
-## Acid Reflux Rules
-
-These meals are planned with acid-reflux sensitivity in mind.
-
-**Rules:**
-1. **No stacking triggers within a single meal.** If a meal contains one trigger (e.g., tomato sauce), it should not also include another (e.g., fried component, heavy spice, citrus-based sauce, chocolate).
-2. **Maximum one potentially triggering meal per week.** Flag it clearly when it appears.
-3. Common triggers: tomato-heavy sauces, very spicy preparations, fried foods, citrus-based dressings or marinades, heavy garlic/onion loads, peppermint, chocolate.
-
-**Flag format:** *"⚠️ Contains tomato — acid-reflux flag. No other triggers in this meal."*
 
 ---
 
@@ -129,38 +200,47 @@ These meals are planned with acid-reflux sensitivity in mind.
 | `veg` | Vegetables |
 | `engine` | TJ's flavor anchor — always the **full Trader Joe's brand name** |
 
-**No duplicate engine or base within one week.**
+**Each engine and each base appears in at most 2 meals per week.**
 
 ---
 
 ## Trader Joe's Engines
 
-Vary engines every meal. Check [traderjoes.com](https://www.traderjoes.com) and the [Fearless Flyer](https://www.traderjoes.com/home/ff) for new options. Prefer milder engines when you already need a flagged meal elsewhere in the week.
+Vary engines every meal. Check [traderjoes.com](https://www.traderjoes.com) and the [Fearless Flyer](https://www.traderjoes.com/home/ff) for new options. Keep the engine in the pot mild; put the heat in a separate at-the-table component.
 
 ---
 
 ## Week Validation Rules
 
-- [ ] 1 breakfast, 1 lunch, 2 dinners
+- [ ] Breakfast, lunch and dinner counts match the planning request
+- [ ] Dad's serving never contains shellfish: shellfish is a separate add-on, comes with a separate protein for Dad, or the meal ends with "(not for Dad)"
+- [ ] Bell peppers separable (on the side or easy to pick out)
+- [ ] Shared meals cooked mild; ≥3 dinners with heat at the table
+- [ ] Red meat in ≤2 dinners; no organ meats, anchovies, sardines, mussels or scallops
+- [ ] Sweet sauces and glazes in ≤2 meals
+- [ ] Base served on the side in shared meals; lower-carb swap in about half the dinners
+- [ ] At least one Indian night; 1–2 soup nights; 1–2 family favorites
 - [ ] ≥3 different protein types across the week
-- [ ] Different TJ's engine on every meal
-- [ ] No duplicate base across the week
-- [ ] All meals 450–550 kcal
+- [ ] Each TJ's engine in at most 2 meals
+- [ ] Each base in at most 2 meals
+- [ ] Adult servings roughly 450–550 kcal
 - [ ] Fiber shown on every meal card
-- [ ] No trigger stacking within any single meal
-- [ ] ≤1 flagged acid-reflux-risk meal per week
-- [ ] ≤1–2 fully frozen entrées
-- [ ] Breakfasts vary in style
+- [ ] ≤4 fully frozen or packaged entrées, ≤3 of them dinners
+- [ ] ≤2 dinners over 30 minutes
+- [ ] Feta and goat cheese on the side; ≤1 salad kit; cottage cheese in 1 meal
+- [ ] Breakfasts: ≥2 savory, ≤2 sweet, ≤2 oat-heavy
 - [ ] Lunch is assemble-only
-- [ ] Cuisine profile varies within the week
+- [ ] At least 5 cuisine profiles; none in more than 3 meals or more than 2 dinners
 - [ ] No pineapple
 
 ---
 
 ## Avoid
 
-- Boring salads and bland proteins
-- Repetitive weeks (same base, cuisine, or engines)
+- Spicy base dishes (heat goes at the table)
+- Shellfish or bell peppers mixed into a shared sauce, broth or base
+- Pineapple
+- Too many salad kits
+- Bland proteins and repetitive weeks (same base, cuisine, or engines)
 - Product-catalogue meals that feel like a TJ's ad
-- Pineapple, cherries, sugar snap peas, snow peas, frozen shredded hash browns
-- Trigger stacking
+- Cherries, sugar snap peas, snow peas, frozen shredded hash browns

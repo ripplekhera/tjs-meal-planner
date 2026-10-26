@@ -1,9 +1,10 @@
 "use client";
 
 import { useMealPlan } from "@/lib/MealPlanProvider";
+import { LogOut } from "lucide-react";
 import { useTheme } from "@/lib/useTheme";
 
-export default function Header() {
+export default function Header({ showSignOut = false }: { showSignOut?: boolean }) {
   const { plan } = useMealPlan();
   const { isDark, toggleTheme } = useTheme();
 
@@ -36,6 +37,19 @@ export default function Header() {
       </div>
       </div>
 
+      <div className="flex shrink-0 items-center gap-2">
+      {showSignOut ? (
+        <form method="post" action="/api/auth/logout">
+          <button
+            type="submit"
+            className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--surface-1)] border border-[var(--border-subtle)] text-[var(--text-muted)] shadow-sm transition-all duration-200 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+            aria-label="Sign out"
+            title="Sign out"
+          >
+            <LogOut size={18} />
+          </button>
+        </form>
+      ) : null}
       <button
         onClick={toggleTheme}
         className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--surface-1)] border border-[var(--border-subtle)] shadow-sm transition-all duration-200 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
@@ -61,6 +75,7 @@ export default function Header() {
           </svg>
         )}
       </button>
+      </div>
     </header>
   );
 }

@@ -28,7 +28,7 @@ Repo: https://github.com/SGShuman/tjs-meal-planner.git
 
 Most meal apps optimize for recipes. Harvest optimizes for **one weekly shop at Trader Joe's**:
 
-- A flat menu of **1 breakfast, 1 lunch, and 2 dinners** (no day grid to babysit)
+- A flat menu of breakfasts, lunches and dinners (no day grid to babysit). The count of each is one setting, `EXPECTED_MEAL_COUNTS` in `lib/constants.ts` (currently 5 / 3 / 7).
 - Macros that matter in practice — **calories, protein, carbs, fat, and fiber**
 - A shopping list ordered for how you actually walk the store
 - A companion “junk” list and household goods list beside the meals
@@ -66,7 +66,7 @@ cd harvest
 cp .env.example .env
 ```
 
-Edit `.env` and set a real `POSTGRES_PASSWORD` (the production Compose file will refuse to start without it).
+Edit `.env` and set a real `POSTGRES_PASSWORD`, plus `AUTH_USERS` and `AUTH_SECRET` (see [Login](#login)). The production Compose file refuses to start without all three.
 
 ### 2. Start the app
 
@@ -74,19 +74,21 @@ Edit `.env` and set a real `POSTGRES_PASSWORD` (the production Compose file will
 docker compose up -d --build
 ```
 
-Open **[http://localhost:3000](http://localhost:3000)** — it redirects to `/menu`.
+Open **[http://localhost:3000](http://localhost:3000)** — it redirects to `/login`. Sign in with one of the `AUTH_USERS` accounts and you land on `/menu`.
 
 Postgres stays on the Docker network (not exposed on the host). The app listens on port `3000`.
 
 ### 3. Load the sample week
 
-With the stack up, seed from the baked-in sample plan:
+With the stack up and signed in, click **Seed plan** on the empty Menu. It loads the `data/current-week.json` that was baked into the image at build time.
+
+Every API route requires a session, so seeding from the command line means signing in first and reusing the cookie:
 
 ```bash
-curl -X POST http://localhost:3000/api/mealplan/seed
+curl -c .cookies -d "username=alice" --data-urlencode "password=YOUR_PASSWORD" http://localhost:3000/api/auth/login
+curl -b .cookies -X POST http://localhost:3000/api/mealplan/seed
+rm .cookies
 ```
-
-Or use the **Seed plan** control in the UI when no week is loaded yet.
 
 You should see a full Menu with meals, macros, and shopping data.
 
@@ -115,12 +117,38 @@ npm run lint
 npm run test:meal-plan-tools
 ```
 
+The dev Compose file doesn't pass `AUTH_USERS` to the app container, so login is off on the dev stack and `curl -X POST http://localhost:3000/api/mealplan/seed` works without signing in. Host scripts (`seed:meal-plan`, `meal-plan:publish`) write to Postgres directly and never go through login.
+
+## Login
+
+Harvest has a simple login for a fixed set of household users. Set two environment variables (in `.env`, or in your host's settings such as Vercel → Settings → Environment Variables):
+
+```
+AUTH_USERS=alice:first-password,bob:second-password   # username:password pairs, comma-separated
+AUTH_SECRET=<32+ random characters>                    # openssl rand -base64 32
+```
+
+- Usernames are case-insensitive; passwords can't contain commas.
+- Sessions last 30 days in a signed, HTTP-only cookie. Sign out from the button in the header.
+- Remove someone from `AUTH_USERS` to revoke their access; change `AUTH_SECRET` to sign everyone out.
+- Production builds refuse to serve pages until both variables are set. `npm run dev` skips login unless `AUTH_USERS` is set.
+
 ## Using the app
 
 1. **Menu** — browse Breakfast / Lunch / Dinner; heart, swap, or remove meals; add from the library.
 2. **Junk / Household tabs** — manage the companion snack list and household staples for the week.
 3. **Shop** — check items off while you walk the store (works better after a visit so the service worker can cache the week).
 4. **Explore** — find past meals by type, protein, or search; open a meal for full ingredient + macro detail.
+
+## Generating a week with Claude
+
+Set `ANTHROPIC_API_KEY` (in `.env`, or your host's environment), then tap **Generate** next to "The Menu". Pick this week or next week, add anything to avoid or notes for the whole week or per meal type ("all vegetarian" applies to every meal of that type; "2 vegetarian" in the notes is a preference), and generate. It usually takes 2–4 minutes and saves the week straight to the database.
+
+- Breakfasts, lunches, dinners and the junk list are generated as parallel Claude calls, then the app checks the whole week: meal counts, your hard rules, no meal from the last few weeks, and each base or engine in at most 2 meals (`MAX_BUILD_VALUE_USES_PER_WEEK`). Meal types that fail get one corrected try. A week that still fails isn't saved.
+- **Skip shellfish this week** and **Skip bell peppers this week** are one-tap toggles. Each covers the whole family of words (shrimp, crab, clams, oyster sauce and the rest; bell, sweet and roasted red peppers) across every meal and the junk list, and a week that breaks one isn't saved. The word lists are `SKIP_GROUPS` in `lib/generation/rules.ts`.
+- How many of each meal to plan is `EXPECTED_MEAL_COUNTS` in `lib/constants.ts`; the prompts, checks and form all follow it.
+- The prompts are in `lib/generation/generate.ts`; the guides sent with them are listed in `lib/generation/context.ts`.
+- `npm run meal-plan:generate-draft -- [YYYY-MM-DD] [--rules rules.json]` does the same from the command line and writes a draft to `data/mealplans/` instead of the database.
 
 ## Authoring a week
 
@@ -136,11 +164,20 @@ npm run meal-plan:sync      # validate + write data/current-week.json
 npm run meal-plan:publish   # upsert into Postgres (dev stack / reachable DB)
 ```
 
+`meal-plan:publish` connects to `DATABASE_URL` from your machine, so it only works when Postgres is reachable, as on the dev stack. The production Compose file keeps Postgres off the host, so to publish a new week there:
+
+```bash
+npm run meal-plan:sync            # writes data/current-week.json
+docker compose up -d --build      # bakes the new JSON into the image
+```
+
+Then run the signed-in `curl` from [Quick start](#3-load-the-sample-week). (The **Seed plan** button only appears while the database has no week at all, so it won't show once one exists.) Seeding upserts by `weekRange`, so re-seeding the same week replaces its meals and keeps checked-off shopping items.
+
 ### Planning context (great for AI-assisted weeks)
 
 | File | Role |
 |---|---|
-| [`data/diner-preferences.md`](data/diner-preferences.md) | Primary diner rules (calories, cooking time, proteins, acid-reflux constraints) |
+| [`data/diner-preferences.md`](data/diner-preferences.md) | Household profile (who's eating, allergies, health guidance, spice, favorites, cooking time) |
 | [`data/companion-preferences.md`](data/companion-preferences.md) | Junk-list categories and rotation rules |
 | [`data/data_context.md`](data/data_context.md) | Trader Joe’s product guidance + quality rules |
 | [`data/meal-plan-skill.md`](data/meal-plan-skill.md) | AI/CLI week-authoring skill + JSON scaffold |
@@ -168,9 +205,12 @@ docs/                Screenshots and public assets for the README
 | `npm run meal-plan:publish` | Publish the synced week to the database |
 | `npm run meal-plan:bootstrap-markdown` | Rebuild `current-week.md` from JSON |
 | `npm run meal-plan` | CLI wrapper (`new` / `validate` / `publish`; scaffolds from `data/meal-plan-skill.md`) |
+| `npm run meal-plan:generate-draft` | Generate a week with Claude into `data/mealplans/` (needs `ANTHROPIC_API_KEY`) |
+| `npm run db:migrate` | Apply `db/init/*.sql` to `DATABASE_URL` (safe to re-run) |
 | `npm run test:shopping` | Shopping-list order unit checks |
 | `npm run test:meal-plans` | Meal-plan fixture validation |
-| `npm run test:meal-plan-tools` | Run both test suites |
+| `npm run test:generation` | Plan-generation checks (offline, no Claude calls) |
+| `npm run test:meal-plan-tools` | Run all three test suites |
 | `npm run lint` | ESLint |
 
 Host-side DB scripts expect `DATABASE_URL` (see `.env.example`). Use the **dev** Compose file, or point `DATABASE_URL` at a reachable Postgres.
@@ -181,6 +221,7 @@ Host-side DB scripts expect `DATABASE_URL` (see `.env.example`). Use the **dev**
 |---|---|---|
 | `GET` | `/api/mealplan` | Latest or selected week (+ available weeks) |
 | `POST` | `/api/mealplan/seed` | Seed from `data/current-week.json` |
+| `POST` | `/api/mealplan/generate` | Generate and save a week with Claude (`{ weekStart?, rules?, replace? }`) |
 | `PATCH` | `/api/mealplan/meals` | Swap / add / remove menu slots |
 | `POST` | `/api/mealplan/ratings` | Heart a meal |
 | `*` | `/api/mealplan/shopping` | Shopping list updates |
@@ -189,21 +230,23 @@ Host-side DB scripts expect `DATABASE_URL` (see `.env.example`). Use the **dev**
 | `GET`/`POST` | `/api/meals` | Meal library |
 | `PUT` | `/api/meals/[id]` | Update a meal |
 
-**Security:** mutating routes are **unauthenticated**. That is intentional for local household use. Do not expose this stack to the public internet without auth (or network controls) in front of it.
+**Security:** every page and API route requires a signed-in user (see [Login](#login)). The only public routes are `/login` and `/api/auth/*`.
 
 ## Troubleshooting
 
 | Symptom | Likely fix |
 |---|---|
-| `POSTGRES_PASSWORD` error on `docker compose up` | Copy `.env.example` → `.env` and set a password |
-| App is up but Menu is empty | `curl -X POST http://localhost:3000/api/mealplan/seed` |
+| `POSTGRES_PASSWORD`, `AUTH_USERS` or `AUTH_SECRET` error on `docker compose up` | Copy `.env.example` → `.env` and set all three |
+| Every page says "Login is not configured" | `AUTH_SECRET` is shorter than 32 characters, or `AUTH_USERS` has no valid `user:password` pair |
+| App is up but Menu is empty | Sign in and click **Seed plan**, or use the signed-in `curl` from [Quick start](#3-load-the-sample-week) |
+| `curl` to `/api/...` returns `{"error":"Not signed in"}` | Sign in with `curl -c` first and pass the cookie with `-b` (see [Quick start](#3-load-the-sample-week)) |
 | `npm run seed:meal-plan` can’t connect | Use `docker-compose.dev.yml` (Postgres on `5432`) or fix `DATABASE_URL` |
 | Stale UI after a rebuild | Hard-refresh; if needed `docker compose down && docker compose up -d --build` |
 | Port 3000 already in use | Stop the other process, or change the host mapping in Compose |
 
 ## Contributing
 
-Issues and PRs are welcome. For behavior changes, keep the week shape (1 breakfast / 1 lunch / 2 dinners) and the shopping-list derivation tests green:
+Issues and PRs are welcome. For behavior changes, keep the week shape in `EXPECTED_MEAL_COUNTS` and the shopping-list derivation tests green:
 
 ```bash
 npm run lint

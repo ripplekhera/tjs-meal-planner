@@ -8,13 +8,9 @@ Step-by-step procedure for generating and publishing a new weekly meal plan loca
 
 ## Week shape
 
-A standard week is **4 meals total**, stored as a flat `meals` array (no days / timeslots):
+A week is a flat `meals` array of breakfasts, lunches and dinners (no days / timeslots). The count of each is `EXPECTED_MEAL_COUNTS` in `lib/constants.ts`, and `npm run meal-plan:sync` rejects weeks that don't match.
 
-- 1 Breakfast
-- 1 Lunch
-- 2 Dinners
-
-Read `data/diner-preferences.md` before editing. All meals target **450–550 kcal** loosely. Fiber is first-class. Full validation checklist (acid-reflux rules, cuisine rotation, etc.) lives in that file.
+Read `data/diner-preferences.md` before editing. All meals target **450–550 kcal** loosely. Fiber is first-class. Full validation checklist (shellfish allergy, spice, cuisine rotation, etc.) lives in that file.
 
 ---
 
@@ -71,9 +67,9 @@ Confirm in the app at http://localhost:3000/menu.
 ## Checklist
 
 - [ ] Read diner + companion preference docs
-- [ ] 1 breakfast, 1 lunch, 2 dinners
+- [ ] Meal counts match `EXPECTED_MEAL_COUNTS`
 - [ ] Macros / fiber present; ~450–550 kcal per meal
-- [ ] Acid-reflux rules respected (no trigger stacking; ≤1 flagged meal)
+- [ ] Dad's serving never contains shellfish; bell peppers separable; shared meals mild
 - [ ] Junk list has all seven categories filled
 - [ ] Sync + publish succeeded
 - [ ] UI shows the new week

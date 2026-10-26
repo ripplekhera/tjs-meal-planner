@@ -12,7 +12,8 @@ export const pool =
   global.harvestPool ??
   new Pool({
     connectionString,
-    max: 10,
+    // Each Vercel function instance gets its own pool, so keep it small there.
+    max: process.env.VERCEL ? 3 : 10,
     idleTimeoutMillis: 45000,
     connectionTimeoutMillis: 20000,
     keepAlive: true,

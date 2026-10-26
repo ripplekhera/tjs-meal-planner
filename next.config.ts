@@ -2,6 +2,10 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  // Plan generation reads the planning guides from data/ at runtime.
+  outputFileTracingIncludes: {
+    "/api/mealplan/generate": ["./data/*.md"],
+  },
   // Add local tunnel host patterns here if you expose `next dev` behind a reverse proxy.
   async headers() {
     return [

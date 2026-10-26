@@ -14,17 +14,22 @@
     "meal-plan:publish": "tsx scripts/publishMealPlan.ts",
     "meal-plan:workflow": "tsx scripts/publishFromBackup.ts",
     "meal-plan": "tsx scripts/mealPlanSkill.ts",
+    "meal-plan:generate-draft": "tsx scripts/generateDraft.ts",
+    "db:migrate": "tsx scripts/dbMigrate.ts",
     "test:shopping": "tsx scripts/testShoppingListOrder.ts",
     "test:meal-plans": "tsx scripts/testMealPlanFixtures.ts",
-    "test:meal-plan-tools": "npm run test:shopping && npm run test:meal-plans"
+    "test:generation": "tsx scripts/testGeneration.ts",
+    "test:meal-plan-tools": "npm run test:shopping && npm run test:meal-plans && npm run test:generation"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.136.0",
     "lucide-react": "^0.468.0",
     "next": "16.2.4",
     "pg": "^8.16.3",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "swr": "^2.4.1"
+    "swr": "^2.4.1",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

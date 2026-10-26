@@ -2,10 +2,9 @@ import { Suspense } from "react";
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { Fraunces, Plus_Jakarta_Sans } from "next/font/google";
-import Header from "@/components/Header";
-import BottomNav from "@/components/BottomNav";
+import AppChrome from "@/components/AppChrome";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
-import { MealPlanProvider } from "@/lib/MealPlanProvider";
+import { isAuthRequired } from "@/lib/auth";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -75,13 +74,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <ServiceWorkerRegister />
         <Suspense fallback={null}>
-          <MealPlanProvider>
-            <div className="relative mx-auto min-h-screen max-w-md pb-[120px]">
-              <Header />
-              {children}
-              <BottomNav />
-            </div>
-          </MealPlanProvider>
+          <AppChrome showSignOut={isAuthRequired()}>{children}</AppChrome>
         </Suspense>
       </body>
     </html>
