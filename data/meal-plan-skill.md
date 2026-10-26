@@ -11,20 +11,20 @@
 You are operating the Harvest meal planning engine for Trader Joe's weeks.
 
 ✅ WEEK SHAPE (the unit we plan and shop for):
-- A week is a FLAT list of 4 meals: 1 breakfast, 1 lunch, and 2 dinners.
+- A week is a FLAT list of breakfasts, lunches and dinners; the count of each is `EXPECTED_MEAL_COUNTS` in `lib/constants.ts`.
 - There are NO days and NO timeslots. Do not assign meals to Monday/Tuesday.
 - The app stores `meals` as a flat array; the Menu view groups them by meal type.
-- The 4-meal mix exists because it is a convenient one-trip shop.
+- The whole week is shopped in one trip.
 
-✅ PRIMARY DINER MEALS (read `data/diner-preferences.md` every session — source of truth):
+✅ HOUSEHOLD MEALS (read `data/diner-preferences.md` every session — source of truth):
 - All meals loosely 450–550 kcal. Fiber first-class on every ingredient and meal.
-- 20–30 min cooks, up to two pans. Frozen entrées ≤1–2/week.
+- 20–30 min cooks, up to two pans (up to 2 longer dinners). Fully frozen or packaged entrées ≤4/week, ≤3 of them dinners.
 - ≥3 protein types/week. Vegetarian meals are fine when they fit the week, but not required.
-- Hard no: pineapple. No duplicate engine or base across the week.
-- No repeated cuisine profile in the same week. Vary breakfast style (not both sweet, not both oat-heavy).
+- Hard no: pineapple. Each engine and each base in at most 2 meals per week.
+- Cuisines: at least 5 profiles per week; any one in at most 3 meals and at most 2 dinners. Breakfasts: at least 2 savory, at most 2 sweet, at most 2 oat-heavy.
 - Lunch: assemble only — no cooking.
-- Acid-reflux aware: no trigger stacking within a meal; ≤1 flagged risk meal/week.
-- Engines: widely vary TJ's sauces/seasonings/dressings; check traderjoes.com and Fearless Flyer; no duplicate engine across week.
+- Family of 4: Dad is allergic to shellfish, so shellfish is a separately cooked add-on or comes with a separate protein for Dad; shared meals cooked mild with heat at the table; bell peppers kept separable for the daughter.
+- Engines: widely vary TJ's sauces/seasonings/dressings; check traderjoes.com and Fearless Flyer; each engine in at most 2 meals per week.
 
 ✅ MACROS ARE A GUIDE, NOT A GATE:
 - Per-meal targets in `data/diner-preferences.md`. No hard daily targets or macro warnings.
@@ -41,7 +41,7 @@ You are operating the Harvest meal planning engine for Trader Joe's weeks.
   3. VEG: Fiber / micronutrients
   4. ENGINE: Signature Trader Joe's flavor anchor
 - `build` values are arrays of strings. Total build items 4-7 (most 4-5).
-- No repeated engine or base within a single meal. No duplicate engine or base across the week.
+- No repeated engine or base within a single meal. Each engine and each base in at most 2 meals per week.
 - Use at least 3 different protein types across the week.
 - Do not repeat a full meal that was served in the last ~2 weeks.
 - For the companion junk list, follow `data/companion-preferences.md`.
@@ -88,7 +88,7 @@ How to use it:
 
 | Role | File |
 |---|---|
-| Primary diner meals | `data/diner-preferences.md` |
+| Household meals | `data/diner-preferences.md` |
 | Companion junk list | `data/companion-preferences.md` |
 | Product / quality context | `data/data_context.md` |
 | Publish checklist | `data/MEAL_PLAN_PRODUCTION_WORKFLOW.md` |
@@ -99,9 +99,9 @@ Read the preference files at the start of every planning session. Do not duplica
 
 | Command | Description |
 |---|---|
-| `/meal-plan new [YYYY-MM-DD]` | Scaffold a new week markdown file in `data/mealplans/` (1 breakfast / 1 lunch / 2 dinners) |
+| `/meal-plan new [YYYY-MM-DD]` | Scaffold a new week markdown file in `data/mealplans/` |
 | `/meal-plan generate` | Scaffold a week plan ready to fill in |
-| `/meal-plan validate [file]` | Validate meal shape, fiber, macro totals, duplicate bases/engines, junk categories, shopping order |
+| `/meal-plan validate [file]` | Validate meal counts, fiber, macro totals, base/engine reuse, junk categories, shopping order |
 | `/meal-plan publish [file]` | Copy draft to `current-week.md` and run local sync + publish (reachable DB) |
 
 > The CLI helpers in `scripts/mealPlanSkill.ts` are for local/dev use. Prefer `npm run meal-plan:sync` and `npm run meal-plan:publish` when you already have a finished markdown week.
@@ -125,12 +125,12 @@ Host-side DB scripts need `DATABASE_URL` (see `.env.example`). Use `docker-compo
 
 ## Output Template
 
-File: `data/mealplans/mealplan-week-YYYY-MM-DD.md`. The week is a flat list of 4 meals (1 breakfast, 1 lunch, 2 dinners) — no days, no timeslots. `build` values are arrays. Per-ingredient `macros` (including `fiber`) should sum to the meal `macros`. Do not author `shoppingList` — it is derived from `ingredients`.
+File: `data/mealplans/mealplan-week-YYYY-MM-DD.md`. The week is a flat list of meals (counts per `EXPECTED_MEAL_COUNTS`) — no days, no timeslots. The template shows one meal of each type; repeat them to reach the counts. `build` values are arrays. Per-ingredient `macros` (including `fiber`) should sum to the meal `macros`. Do not author `shoppingList` — it is derived from `ingredients`.
 
 ```markdown
 # Current Week Plan: [Month] [Day] — [Month] [Day]
 
-Active week of food: one breakfast, one lunch, and two dinners — a full week shopped in one trip. There are no days or timeslots; `meals` is a flat list grouped by type in the app's Menu view. Fiber is a first-class macro on every ingredient and meal.
+Active week of food — a full week shopped in one trip. There are no days or timeslots; `meals` is a flat list grouped by type in the app's Menu view. Fiber is a first-class macro on every ingredient and meal.
 
 ## Canonical JSON
 ```json

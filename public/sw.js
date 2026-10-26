@@ -5,7 +5,7 @@
  * - GET /api/mealplan: network-first, cache the last good response, serve it when offline.
  * Mutating API calls (POST/PATCH/DELETE/PUT) are never cached; the app queues those itself.
  */
-const VERSION = "harvest-v2";
+const VERSION = "harvest-v3";
 const SHELL_CACHE = `${VERSION}-shell`;
 const DATA_CACHE = `${VERSION}-data`;
 const SHELL_ASSETS = ["/menu", "/shop", "/icon.svg", "/manifest.webmanifest"];
@@ -15,7 +15,13 @@ self.addEventListener("install", (event) => {
     caches
       .open(SHELL_CACHE)
       .then((cache) =>
-        Promise.allSettled(SHELL_ASSETS.map((url) => cache.add(url)))
+        Promise.allSettled(
+          SHELL_ASSETS.map((url) =>
+            fetch(url).then((response) => {
+              if (isCacheable(response)) return cache.put(url, response);
+            })
+          )
+        )
       )
       .then(() => self.skipWaiting())
   );
@@ -35,6 +41,11 @@ self.addEventListener("activate", (event) => {
       .then(() => self.clients.claim())
   );
 });
+
+// Only cache real successes, never login redirects or 401s from a signed-out session.
+function isCacheable(response) {
+  return response.ok && !response.redirected && response.type === "basic";
+}
 
 function isMealPlanRead(request, url) {
   return request.method === "GET" && url.pathname === "/api/mealplan";
@@ -63,8 +74,10 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          const copy = response.clone();
-          caches.open(DATA_CACHE).then((cache) => cache.put(request, copy));
+          if (isCacheable(response)) {
+            const copy = response.clone();
+            caches.open(DATA_CACHE).then((cache) => cache.put(request, copy));
+          }
           return response;
         })
         .catch(() => caches.match(request))
@@ -81,8 +94,10 @@ self.addEventListener("fetch", (event) => {
       caches.match(request).then((cached) => {
         const network = fetch(request)
           .then((response) => {
-            const copy = response.clone();
-            caches.open(SHELL_CACHE).then((cache) => cache.put(request, copy));
+            if (isCacheable(response)) {
+              const copy = response.clone();
+              caches.open(SHELL_CACHE).then((cache) => cache.put(request, copy));
+            }
             return response;
           })
           .catch(() => cached);
@@ -97,8 +112,10 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          const copy = response.clone();
-          caches.open(SHELL_CACHE).then((cache) => cache.put(request, copy));
+          if (isCacheable(response)) {
+            const copy = response.clone();
+            caches.open(SHELL_CACHE).then((cache) => cache.put(request, copy));
+          }
           return response;
         })
         .catch(async () => {

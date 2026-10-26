@@ -12,6 +12,24 @@ export function toSortValueFromDateOnly(dateOnly: string): number {
   return Number(compact);
 }
 
+/** Parses "YYYY-MM-DD" as a local date (new Date("YYYY-MM-DD") would be UTC midnight). */
+export function parseDateOnly(dateOnly: string): Date | null {
+  const match = dateOnly.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return null;
+  const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+  return Number.isNaN(date.getTime()) || toDateOnlyString(date) !== dateOnly ? null : date;
+}
+
+/** "2026-07-27" -> "July 27 — August 2", the format stored in meal_plans.week_range. */
+export function formatWeekRange(weekStartDateOnly: string): string {
+  const start = parseDateOnly(weekStartDateOnly);
+  if (!start) throw new Error(`Invalid week start date: ${weekStartDateOnly}`);
+  const end = new Date(start);
+  end.setDate(end.getDate() + 6);
+  const format = (date: Date) => date.toLocaleDateString("en-US", { month: "long", day: "numeric" });
+  return `${format(start)} — ${format(end)}`;
+}
+
 export function getWeekStartDateOnly(reference: Date = new Date()): string {
   // Monday-start week
   const date = new Date(reference);

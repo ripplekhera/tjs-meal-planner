@@ -1,6 +1,7 @@
 "use client";
 
 import { ReactNode } from "react";
+import GenerateWeekButton from "@/components/GenerateWeekButton";
 import SeedMealPlanButton from "@/components/SeedMealPlanButton";
 import { StoredMealPlan } from "@/lib/types";
 
@@ -31,7 +32,8 @@ export default function MealPlanGate({
 
   if (!plan) {
     return (
-      <main className="px-4">
+      <main className="px-4 space-y-3">
+        <GenerateWeekButton variant="card" />
         <SeedMealPlanButton onSeeded={onSeeded} />
       </main>
     );

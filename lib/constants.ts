@@ -5,12 +5,32 @@
 
 import type { MealType } from "@/lib/types";
 
-// Week shape — single source of truth for meal counts per type
+// Week shape — single source of truth for meal counts per type. Generation, validation,
+// the prompts and the Generate form all read from this; the planning guides in data/
+// deliberately don't repeat the numbers.
 export const EXPECTED_MEAL_COUNTS = {
-  Breakfast: 1,
-  Lunch: 1,
-  Dinner: 2,
+  Breakfast: 5,
+  Lunch: 3,
+  Dinner: 7,
 } as const;
+
+export type WeekMealType = keyof typeof EXPECTED_MEAL_COUNTS;
+
+export const WEEK_MEAL_TYPES = Object.keys(EXPECTED_MEAL_COUNTS) as WeekMealType[];
+
+export const MEAL_TYPE_LABELS: Record<WeekMealType, { one: string; many: string }> = {
+  Breakfast: { one: "breakfast", many: "breakfasts" },
+  Lunch: { one: "lunch", many: "lunches" },
+  Dinner: { one: "dinner", many: "dinners" },
+};
+
+/** "5 breakfasts", "1 lunch" */
+export function formatMealCount(type: WeekMealType, count: number = EXPECTED_MEAL_COUNTS[type]): string {
+  return `${count} ${count === 1 ? MEAL_TYPE_LABELS[type].one : MEAL_TYPE_LABELS[type].many}`;
+}
+
+// How many meals in one week may share the same base or the same engine.
+export const MAX_BUILD_VALUE_USES_PER_WEEK = 2;
 
 export const EXPECTED_MEAL_TOTAL = Object.values(EXPECTED_MEAL_COUNTS).reduce(
   (sum, count) => sum + count,

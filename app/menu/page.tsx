@@ -5,6 +5,7 @@ import { useMemo, useRef, useState } from "react";
 import { Loader2, Plus, Home } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import JunkMenuPanel from "@/components/JunkMenuPanel";
+import GenerateWeekButton from "@/components/GenerateWeekButton";
 import HouseholdGoodsPanel from "@/components/HouseholdGoodsPanel";
 import MenuMealCard from "@/components/MenuMealCard";
 import MealPlanGate from "@/components/MealPlanGate";
@@ -287,7 +288,10 @@ export default function MenuPage() {
 
         return (
           <main className="px-4 pb-8">
-            <p className={`mb-5 ${sectionLabelColorClass.green}`}>The Menu</p>
+            <div className="mb-5 flex items-center justify-between">
+              <p className={sectionLabelColorClass.green}>The Menu</p>
+              <GenerateWeekButton />
+            </div>
 
             <MenuContent
               groups={groups}

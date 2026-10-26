@@ -25,6 +25,10 @@ services:
       NODE_ENV: production
       NEXT_TELEMETRY_DISABLED: "1"
       DATABASE_URL: ${DATABASE_URL:-postgresql://${POSTGRES_USER:-harvest}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-harvest_db}}
+      AUTH_USERS: ${AUTH_USERS:?Set AUTH_USERS in your environment}
+      AUTH_SECRET: ${AUTH_SECRET:?Set AUTH_SECRET in your environment}
+      # Optional: enables plan generation.
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       HOSTNAME: 0.0.0.0
       PORT: "3000"
     ports:

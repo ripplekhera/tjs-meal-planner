@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "dev-no-login",
+      "runtimeExecutable": "env",
+      "runtimeArgs": ["AUTH_USERS=", "npm", "run", "dev"],
+      "port": 3000
+    }
+  ]
+}
